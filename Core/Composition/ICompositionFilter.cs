@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlatformFramework
+namespace Calvor.Core.Composition
 {
-    public class Class
+    public interface ICompositionFilter
     {
     }
 }
