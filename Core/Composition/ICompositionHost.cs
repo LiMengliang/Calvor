@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
 using System.Reflection;
-using Calvor.Core;
 
 namespace Calvor.Core.Composition
 {
@@ -13,7 +12,7 @@ namespace Calvor.Core.Composition
     /// Please refer to the designer document which cover the next gen plug-in system for more information
     /// on the role of the composition host.
     /// </summary>
-    public interface ICompositionHost : IDisposable
+    public interface ICompositionHost
     {
         /// <summary>
         /// Creates an instance of a type that requires composition. The type can either be exported through
@@ -22,7 +21,6 @@ namespace Calvor.Core.Composition
         /// </summary>
         /// <typeparam name="T">The type of object to create an instance of</typeparam>
         /// <returns>The created object</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
         T CreateInstance<T>() where T : class, new();
 
         /// <summary>
@@ -38,7 +36,6 @@ namespace Calvor.Core.Composition
         /// The exported value.  An exception is thrown if there is no export available, if there
         /// is more than one export available, or if the export CreationPolicy is NonShared.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
         T GetSharedExportedValue<T>();
 
         /// <summary>
@@ -54,7 +51,6 @@ namespace Calvor.Core.Composition
         /// The exported value.  An exception is thrown if there is no export available, if there
         /// is more than one export available, or if the export CreationPolicy is Shared or Any.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
         T GetNonSharedExportedValue<T>();
 
         /// <summary>
@@ -64,7 +60,6 @@ namespace Calvor.Core.Composition
         /// </summary>
         /// <typeparam name="T">The type of object to get.  Must be MEF exported type</typeparam>
         /// <returns>The exported value or default(T) is there is not export available.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
         T GetSharedExportedValueOrDefault<T>();
 
         /// <summary>
@@ -156,16 +151,9 @@ namespace Calvor.Core.Composition
         IEnumerable<Export> GetExports(ImportDefinition definition); 
         
         /// <summary>
-        /// Dynamically adds an assembly to the Composition.
-        /// </summary>
-        /// <param name="assembly">The assembly to add</param>
-        void AddToComposition(Assembly assembly);
-
-        /// <summary>
         /// Dynamically adds a ComposablePartCatalog to the Composition
         /// </summary>
         /// <param name="composablePartCatalog">The ComposablePartCatalog to add</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "composable", Justification = "TODO")]
         void AddToComposition(ComposablePartCatalog composablePartCatalog);
 
         /// <summary>

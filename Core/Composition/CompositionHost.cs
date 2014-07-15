@@ -1,20 +1,13 @@
-//-----------------------------------------------------------------------
-// <copyright file="CompositionExtension.WPF.cx" company="National Instruments">
-//     Copyright (c) National Instruments.  All rights reserved.
-// </copyright>
-// Design document is located here:
-// http:http://nicentral.natinst.com/confluence/display/Blueprint/NextGen+Plug-in+System
-//-----------------------------------------------------------------------
 using System;
-using System.Collections.Concurrent;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Calvor.Core;
 using Calvor.Core.Composition;
 
 namespace NationalInstruments.Composition
@@ -28,13 +21,16 @@ namespace NationalInstruments.Composition
     public sealed class CompositionHost : ICompositionHost
     {
         #region Fields
-
-        private bool _disposed;
+        
         private CompositionContainer _container;
-        private CompositionContainer _containerDisposeAtTheEnd;
         private readonly HashSet<Assembly> _composedAssemblies;
-        private CompositionSet _compositionSet;
         private AggregateCatalog _catalog;
+
+        #endregion
+
+        #region Static Instance
+
+        public static CompositionHost Host = new CompositionHost();
 
         #endregion
 
@@ -48,24 +44,6 @@ namespace NationalInstruments.Composition
             _composedAssemblies = new HashSet<Assembly>();
         }
 
-        /// <summary>
-        /// Initializes the CompositionHost after construction
-        /// </summary>
-        /// <param name="set">CompositionSet this CompositionHost uses</param>
-        /// <param name="container">CompositionContainer this CompositionHost uses</param>
-        /// <param name="containerDisposeAtTheEnd">CompositionContainer that will get disposed when the CompositionHost is disposed</param>
-        /// <param name="catalog">Catalog this CompositionHost uses</param>
-        internal void Initialize(CompositionSet set, CompositionContainer container, CompositionContainer containerDisposeAtTheEnd, AggregateCatalog catalog)
-        {
-            _compositionSet = set;
-            _container = container;
-            _containerDisposeAtTheEnd = containerDisposeAtTheEnd;
-            _catalog = catalog;
-
-            var compositionHostManager = _container.GetExportedValue<ICompositionHostManager>();
-            ((CompositionHostManager)compositionHostManager).AddCompositionHost(this);
-        }
-
         #endregion
 
         #region Public Interface
@@ -74,271 +52,147 @@ namespace NationalInstruments.Composition
         /// Initializes a new composition host with the components provided in the specified component catalog
         /// </summary>
         /// <param name="catalog">The catalog to use for composition</param>
-        /// <returns>The newly created composition host</returns>
-        public static ICompositionHost InitializeWithCatalog(ComposablePartCatalog catalog)
+        public void InitializeWithCatalog(ComposablePartCatalog catalog)
         {
-            return InitializeWithCatalog(catalog, null, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-        }
-
-        /// <summary>
-        /// Initializes a new composition host with the components provided in the specified component catalog
-        /// </summary>
-        /// <param name="catalog">The catalog to use for composition</param>
-        /// <param name="filter">Optional filter which is called to filter the catalog on a per part basis</param>
-        /// <returns>The newly created composition host</returns>
-        public static ICompositionHost InitializeWithCatalog(ComposablePartCatalog catalog, ICompositionFilter filter)
-        {
-            return InitializeWithCatalog(catalog, filter, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            InitializeWithCatalog(catalog, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
         }
 
         /// <summary>
         /// Initializes a new composition host with the components provided in the specified component catalog
         /// </summary>
         /// <param name="catalog">The catalog to use for composition of the root and leaf composition containers</param>
-        /// <param name="filter">Filter for eliminating exports from the catalog</param>
         /// <param name="componentDirectory">The directory to use as the root of composition</param>
-        /// <returns>The newly created composition host</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "CompositionSet is cached in a static list")]
-        public static ICompositionHost InitializeWithCatalog(ComposablePartCatalog catalog, ICompositionFilter filter, string componentDirectory)
+        public void InitializeWithCatalog(ComposablePartCatalog catalog, string componentDirectory)
         {
-            var set = CompositionSet.FindCompositionSet(catalog);
-            if (set == null)
+            var directoryCatalog = new DirectoryCatalog(componentDirectory);
+            _catalog = new AggregateCatalog(new Collection<ComposablePartCatalog>
             {
-                set = new CompositionSet(catalog, componentDirectory);
-            }
-
-            CompositionHost host = set.CreateHost(null, filter);
-            return host;
-        }
-
-        /// <summary>
-        /// Initializes a new composition host using the standard component directory
-        /// </summary>
-        /// <param name="filter">Optional filter which is called to filter the catalog on a per part basis</param>
-        /// <returns>The newly created composition host</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Not Appropriate")]
-        public static ICompositionHost InitializeNew(ICompositionFilter filter)
-        {
-            return InitializeNew(filter, null);
-        }
-
-        /// <summary>
-        /// Initializes a new composition host loading the components from the provided component directory
-        /// </summary>
-        /// <param name="componentPath">The full path to the directory to look in for composition assemblies</param>
-        /// <returns>The newly created composition host</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Not Appropriate")]
-        public static ICompositionHost InitializeNew(string componentPath)
-        {
-            return InitializeNew(null, componentPath);
-        }
-
-        /// <summary>
-        /// Initializes a new composition host loading the components from the provided component directory
-        /// </summary>
-        /// <param name="filter">Optional filter which is called to filter the catalog on a per part basis</param>
-        /// <param name="componentPath">The full path to the directory to look in for composition assemblies</param>
-        /// <returns>The newly created composition host</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Not Appropriate")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The item is assigned to a value in another object which is responsible for desposing it")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile", Justification = "We need to call Assembly.LoadFile to load our assemblies.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Any Cache Failure Exception, there are lots, and we should be able to recover from any of them")]
-        public static ICompositionHost InitializeNew(ICompositionFilter filter, string componentPath)
-        {
-            if (string.IsNullOrEmpty(componentPath))
-            {
-#if !MONOTOUCH
-                componentPath = typeof(CompositionHost).Assembly.Location;
-                componentPath = Path.GetDirectoryName(componentPath);
-                ////componentPath = componentPath.Substring(0, componentPath.LastIndexOf('\\'));
-#else
-                // Xamarin iOS bundles for the simulator use shortcuts to dlls that live in the general Assemblies output
-                // directory, instead of pointing to the copies in each app's output directory or having real copies of the dlls
-				// in the bundle. This makes using assembly location problematic because the assembly comes from the general
-				// Assemblies directory, so we'll end up trying to use a componentPath that has all dlls from Everything.MonoTouch.sln.
-				// If we use the bundle path instead, everything works out as we want/expect.
-                componentPath = MonoTouch.Foundation.NSBundle.MainBundle.BundlePath;
-#endif
-            }
-
-            CompositionHost host = null;
-            using (var compositionSetLock = CompositionSet.InitCompositionSet(filter, componentPath))
-            {
-                var set = CompositionSet.FindCompositionSet(componentPath);
-                if (set != null)
-                {
-                    host = set.CreateHost(null, filter);
-                }
-            }
-
-            // Setup the container and create the host
-#if _DEBUG
-            AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(CurrentDomain_AssemblyLoad);
-#endif
-            ////Log.WriteLine("******* Composition for {0} took {1:0.00} ms", componentPath, (end - start).TotalMilliseconds);
-            return host;
-        }
-
-        /// <summary>
-        /// Initializes a new composition host using the standard component directory
-        /// </summary>
-        /// <returns>The newly created composition host</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Not Appropriate")]
-        public static ICompositionHost InitializeNew()
-        {
-            return InitializeNew(null, null);
+                catalog,
+                directoryCatalog
+            });
+            _container = new CompositionContainer(_catalog);
         }
 
         #endregion
 
         #region ICompositionHost Implementation
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Lameness")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", Justification = "BugInCodeAnalysisRule")]
+        /// <inheritdoc />
         T ICompositionHost.CreateInstance<T>()
         {
-            DoDisposedCheck();
             var export = GetNonSharedExportedValueOrDefault<T>(_container);
             if (export != null)
             {
                 ValidateNonShared(export.GetType());
                 return export;
             }
+            var instance = new T();
+            _container.SatisfyImportsOnce(instance);
+            return instance;
+        }
 
-            T result = new T();
-            var selfComposes = result as IUseComposition;
-            if (selfComposes != null)
-            {
-                selfComposes.Host = this;
-                var needsSatisfied = result as IPartImportsSatisfiedNotification;
-                if (needsSatisfied != null)
-                {
-                    needsSatisfied.OnImportsSatisfied();
-                }
-            }
-            else
-            {
-                _container.SatisfyImportsOnce(result);
-            }
+        /// <inheritdoc />
+        T ICompositionHost.GetSharedExportedValue<T>()
+        {
+            var result = _container.GetExportedValue<T>();
+            ValidateShared(result.GetType());
             return result;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
-        T ICompositionHost.GetSharedExportedValue<T>()
-        {
-            DoDisposedCheck();
-            return _exportCache.GetExportedValue<T>();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
+        /// <inheritdoc />
         T ICompositionHost.GetNonSharedExportedValue<T>()
         {
-            DoDisposedCheck();
             var result = _container.GetExportedValue<T>();
             ValidateNonShared(result.GetType());
             return result;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "This method wraps a method that also requires a type parameter.")]
+        /// <inheritdoc />
         T ICompositionHost.GetSharedExportedValueOrDefault<T>()
         {
-            DoDisposedCheck();
-            T export;
-            _exportCache.TryGetExportedValue(out export);
-            return export;
+            try
+            {
+                return _container.GetExportedValue<T>();
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
         }
 
+        /// <inheritdoc />
         T ICompositionHost.GetExportedValue<T>(string contractName)
         {
-            DoDisposedCheck();
             return _container.GetExportedValue<T>(contractName);
         }
 
+        /// <inheritdoc />
         IEnumerable<Lazy<T, TMetadata>> ICompositionHost.GetExports<T, TMetadata>()
         {
-            DoDisposedCheck();
             return _container.GetExports<T, TMetadata>();
         }
 
+        /// <inheritdoc />
         IEnumerable<Lazy<T>> ICompositionHost.GetExports<T>()
         {
-            DoDisposedCheck();
             return _container.GetExports<T>();
         }
-        
+
+        /// <inheritdoc />
         IEnumerable<Lazy<object, object>> ICompositionHost.GetExports(Type type, Type metadataViewType, string contractName)
         {
-            DoDisposedCheck();
             return _container.GetExports(type, metadataViewType, contractName);
         }
 
+        /// <inheritdoc />
         IEnumerable<Lazy<T, TMetadataView>> ICompositionHost.GetExports<T, TMetadataView>(string contractName)
         {
-            DoDisposedCheck();
             return _container.GetExports<T, TMetadataView>(contractName);
         }
 
+        /// <inheritdoc />
         IEnumerable<Export> ICompositionHost.GetExports(ImportDefinition definition)
         {
-            DoDisposedCheck();
             return _container.GetExports(definition);
         }
-        
+
+        /// <inheritdoc />
         IEnumerable<T> ICompositionHost.GetSharedExportedValues<T>()
         {
-            DoDisposedCheck();
-            return _exportCache.GetExportedValues<T>();
+            var result = _container.GetExportedValues<T>();
+            ValidateAllShared((IEnumerable<object>)result);
+            return _container.GetExportedValues<T>();
         }
 
+        /// <inheritdoc />
         IEnumerable<T> ICompositionHost.GetNonSharedExportedValues<T>()
         {
-            DoDisposedCheck();
             var result = _container.GetExportedValues<T>();
-            if (GlobalTestingState.IsDebugOrTestCode)
-            {
-                ValidateAtLeastOneNonShared((IEnumerable<object>)result, typeof(T));
-            }
+            ValidateAtLeastOneNonShared((IEnumerable<object>)result, typeof(T));
             return result;
         }
 
+        /// <inheritdoc />
         void ICompositionHost.Compose(CompositionBatch batch)
         {
-            DoDisposedCheck();
             _container.Compose(batch);
         }
 
+        /// <inheritdoc />
         ComposablePart ICompositionHost.SatisfyImportsOnce(object attributedPart)
         {
-            DoDisposedCheck();
             return _container.SatisfyImportsOnce(attributedPart);
         }
 
+        /// <inheritdoc />
         void ICompositionHost.ComposeParts(params object[] attributedParts)
         {
-            DoDisposedCheck();
             _container.ComposeParts(attributedParts);
         }
 
-        void ICompositionHost.AddToComposition(Assembly assembly)
-        {
-            DoDisposedCheck();
-            lock (_catalog)
-            {
-                if (!_composedAssemblies.Contains(assembly) && !_compositionSet.Assemblies.Contains(assembly))
-                {
-                    var participates = PlatformSupport.PlatformGetCustomAttribute(assembly, typeof(ParticipatesInCompositionAttribute));
-                    if (participates != null)
-                    {
-                        _composedAssemblies.Add(assembly);
-                        _catalog.Catalogs.Add(new AssemblyCatalog(assembly));
-                    }
-                }
-            }
-        }
-
+        /// <inheritdoc />
         void ICompositionHost.AddToComposition(ComposablePartCatalog composablePartCatalog)
         {
-            DoDisposedCheck();
             lock (_catalog)
             {
                 _catalog.Catalogs.Add(composablePartCatalog);
@@ -363,7 +217,6 @@ namespace NationalInstruments.Composition
         /// <typeparam name="T">The type of object to get</typeparam>
         /// <param name="container">The composition container</param>
         /// <returns>The exported value or default</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Thismethodwrapsamethodthatalsorequiresatypeparameter.")]
         private static T GetNonSharedExportedValueOrDefault<T>(CompositionContainer container) where T : class
         {
             try
@@ -375,13 +228,6 @@ namespace NationalInstruments.Composition
             {
                 return default(T);
             }
-#if MONO
-            catch (Exception e)
-            {
-                Log.WriteLine("Composition Exception: " + e.Message);
-                return default(T);
-            }
-#endif
         }
 
         /// <summary>
@@ -390,12 +236,9 @@ namespace NationalInstruments.Composition
         /// <param name="type">The type being exported</param>
         private static void ValidateNonShared(Type type)
         {
-            if (!GlobalTestingState.IsDebugOrTestCode)
-            {
-                return;
-            }
-
-            if (_creationPolicyMemo[type] != CreationPolicy.NonShared)
+            var attribute = Attribute.GetCustomAttribute(type, typeof(PartCreationPolicyAttribute), true) as PartCreationPolicyAttribute;
+            var creationPolicy = attribute != null ? attribute.CreationPolicy : CreationPolicy.Shared;
+            if (creationPolicy != CreationPolicy.NonShared)
             {
                 throw new InvalidOperationException("MEF exported type: " + type.FullName + " is used by CreateInstance or GetNonSharedExportedValue, but it is not marked as non-shared.\n" +
                     "You need to add the \n\n[PartCreationPolicy(CreationPolicy.NonShared)]\n\nAttribute to the type definition or use GetSharedExportedValue instead.");
@@ -409,14 +252,20 @@ namespace NationalInstruments.Composition
         /// <param name="baseType">The base type requested for the export</param>
         private static void ValidateAtLeastOneNonShared(IEnumerable<object> exportedObjects, Type baseType)
         {
-            if (!GlobalTestingState.IsDebugOrTestCode || !exportedObjects.Any())
+            if (!exportedObjects.Any())
             {
                 return;
             }
 
-            if (exportedObjects.Any(export => _creationPolicyMemo[export.GetType()] == CreationPolicy.NonShared))
+            foreach (var exportedObject in exportedObjects)
             {
-                return;
+                var attribute =
+                    Attribute.GetCustomAttribute(exportedObject.GetType(), typeof (PartCreationPolicyAttribute), true)
+                        as PartCreationPolicyAttribute;
+                if (attribute != null && attribute.CreationPolicy == CreationPolicy.NonShared)
+                {
+                    return;
+                }
             }
 
             throw new InvalidOperationException("MEF exported types for: " + baseType.FullName + " is used by GetNonSharedExportedValues, but none of the found types are marked as non-shared.\n" +
@@ -429,13 +278,11 @@ namespace NationalInstruments.Composition
         /// <param name="type">The type being exported</param>
         private static void ValidateShared(Type type)
         {
-            if (!GlobalTestingState.IsDebugOrTestCode)
-            {
-                return;
-            }
-
-            CreationPolicy policy = _creationPolicyMemo[type];
-            if (policy != CreationPolicy.Shared && policy != CreationPolicy.Any)
+            var attribute =
+                Attribute.GetCustomAttribute(type, typeof (PartCreationPolicyAttribute), true) as
+                    PartCreationPolicyAttribute;
+            var creationPolicy = attribute != null ? attribute.CreationPolicy : CreationPolicy.Shared;
+            if (creationPolicy != CreationPolicy.Shared && creationPolicy != CreationPolicy.Any)
             {
                 throw new InvalidOperationException("MEF exported type: " + type.FullName + " is used by GetSharedExportedValue or GetSharedExportedValueOrDefault, but it is not marked as shared.\n" +
                     "You need to add the \n\n[PartCreationPolicy(CreationPolicy.Shared)]\n\nAttribute to the type definition or use CreateInstance or GetNonSharedExportedValue instead.");
@@ -448,15 +295,13 @@ namespace NationalInstruments.Composition
         /// <param name="exportedObjects">The objects being exported</param>
         private static void ValidateAllShared(IEnumerable<object> exportedObjects)
         {
-            if (!GlobalTestingState.IsDebugOrTestCode)
-            {
-                return;
-            }
-
             foreach (var export in exportedObjects)
             {
-                CreationPolicy policy = _creationPolicyMemo[export.GetType()];
-                if (policy != CreationPolicy.Shared && policy != CreationPolicy.Any)
+                var attribute =
+                Attribute.GetCustomAttribute(export.GetType(), typeof (PartCreationPolicyAttribute), true) as
+                    PartCreationPolicyAttribute;
+                var creationPolicy = attribute != null ? attribute.CreationPolicy : CreationPolicy.Shared;
+                if (creationPolicy != CreationPolicy.Shared && creationPolicy != CreationPolicy.Any)
                 {
                     throw new InvalidOperationException("MEF exported type: " + export.GetType().FullName + " is used by GetSharedExportedValues but it is not marked as shared.\n" +
                         "You need to add the \n\n[PartCreationPolicy(CreationPolicy.Shared)]\n\nAttribute to the type definition or use GetNonSharedExportedValues instead.");
@@ -465,54 +310,5 @@ namespace NationalInstruments.Composition
         }
 
         #endregion
-
-        #region IDisposable
-
-        /// <summary>
-        /// Called to Dispose the composition host
-        /// </summary>
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                _disposed = true;
-
-                var compositionHostManager = _container.GetExportedValue<ICompositionHostManager>();
-                ((CompositionHostManager)compositionHostManager).RemoveCompositionHost(this);
-
-                _compositionSet.RemoveFromSet(_container);
-                _container.Dispose();
-                _exportCache = null;
-                if (_containerDisposeAtTheEnd != null)
-                {
-                    _containerDisposeAtTheEnd.Dispose();
-                }
-                foreach (var disposable in _disposables)
-                {
-                    disposable.Dispose();
-                }
-                _disposables.Clear();
-            }
-        }
-
-        private void DoDisposedCheck()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException("CompositionHost");
-            }
-        }
-
-        #endregion
-
-        private readonly List<IDisposable> _disposables = new List<IDisposable>(); 
-        /// <summary>
-        /// Add additional items to be cleaned up on dispose
-        /// </summary>
-        /// <param name="disposable">a disposable</param>
-        internal void AddToCleanup(IDisposable disposable)
-        {
-            _disposables.Add(disposable);
-        }
     }
 }

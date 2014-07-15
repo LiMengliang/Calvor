@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{F19DABCE-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composition", "Core\Composition\Composition.csproj", "{64F48DF2-8E16-4F0B-B114-1983958F23E1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DiagramSDK", "DiagramSDK", "{5230B7BE-8E80-4F39-A902-909D60ACF681}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDK", "SDK", "{5230B7BE-8E80-4F39-A902-909D60ACF681}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformFramework", "DiagramSDK\PlatformFramework\PlatformFramework.csproj", "{12921075-C3F1-4BAB-B036-3520BC953178}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformFramework", "SDK\PlatformFramework\PlatformFramework.csproj", "{12921075-C3F1-4BAB-B036-3520BC953178}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
