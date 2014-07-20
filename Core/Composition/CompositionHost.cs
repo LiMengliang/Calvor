@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Calvor.Core.Composition;
 
-namespace NationalInstruments.Composition
+namespace Calvor.Core.Composition
 {
     /// <summary>
     /// Provides the standard implementation of the ICompositionHost interface for this next gen system.
@@ -27,13 +27,7 @@ namespace NationalInstruments.Composition
         private AggregateCatalog _catalog;
 
         #endregion
-
-        #region Static Instance
-
-        public static CompositionHost Host = new CompositionHost();
-
-        #endregion
-
+        
         #region Constructor/Initialization
 
         /// <summary>
@@ -54,21 +48,9 @@ namespace NationalInstruments.Composition
         /// <param name="catalog">The catalog to use for composition</param>
         public void InitializeWithCatalog(ComposablePartCatalog catalog)
         {
-            InitializeWithCatalog(catalog, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-        }
-
-        /// <summary>
-        /// Initializes a new composition host with the components provided in the specified component catalog
-        /// </summary>
-        /// <param name="catalog">The catalog to use for composition of the root and leaf composition containers</param>
-        /// <param name="componentDirectory">The directory to use as the root of composition</param>
-        public void InitializeWithCatalog(ComposablePartCatalog catalog, string componentDirectory)
-        {
-            var directoryCatalog = new DirectoryCatalog(componentDirectory);
             _catalog = new AggregateCatalog(new Collection<ComposablePartCatalog>
             {
                 catalog,
-                directoryCatalog
             });
             _container = new CompositionContainer(_catalog);
         }
@@ -78,7 +60,7 @@ namespace NationalInstruments.Composition
         #region ICompositionHost Implementation
 
         /// <inheritdoc />
-        T ICompositionHost.CreateInstance<T>()
+        public T CreateInstance<T>() where T : class, new()
         {
             var export = GetNonSharedExportedValueOrDefault<T>(_container);
             if (export != null)
@@ -92,7 +74,7 @@ namespace NationalInstruments.Composition
         }
 
         /// <inheritdoc />
-        T ICompositionHost.GetSharedExportedValue<T>()
+        public T GetSharedExportedValue<T>()
         {
             var result = _container.GetExportedValue<T>();
             ValidateShared(result.GetType());
@@ -100,7 +82,7 @@ namespace NationalInstruments.Composition
         }
 
         /// <inheritdoc />
-        T ICompositionHost.GetNonSharedExportedValue<T>()
+        public T GetNonSharedExportedValue<T>()
         {
             var result = _container.GetExportedValue<T>();
             ValidateNonShared(result.GetType());
@@ -108,7 +90,7 @@ namespace NationalInstruments.Composition
         }
 
         /// <inheritdoc />
-        T ICompositionHost.GetSharedExportedValueOrDefault<T>()
+        public T GetSharedExportedValueOrDefault<T>()
         {
             try
             {
@@ -121,43 +103,43 @@ namespace NationalInstruments.Composition
         }
 
         /// <inheritdoc />
-        T ICompositionHost.GetExportedValue<T>(string contractName)
+        public T GetExportedValue<T>(string contractName)
         {
             return _container.GetExportedValue<T>(contractName);
         }
 
         /// <inheritdoc />
-        IEnumerable<Lazy<T, TMetadata>> ICompositionHost.GetExports<T, TMetadata>()
+        public IEnumerable<Lazy<T, TMetadata>> GetExports<T, TMetadata>()
         {
             return _container.GetExports<T, TMetadata>();
         }
 
         /// <inheritdoc />
-        IEnumerable<Lazy<T>> ICompositionHost.GetExports<T>()
+        public IEnumerable<Lazy<T>> GetExports<T>()
         {
             return _container.GetExports<T>();
         }
 
         /// <inheritdoc />
-        IEnumerable<Lazy<object, object>> ICompositionHost.GetExports(Type type, Type metadataViewType, string contractName)
+        public IEnumerable<Lazy<object, object>> GetExports(Type type, Type metadataViewType, string contractName)
         {
             return _container.GetExports(type, metadataViewType, contractName);
         }
 
         /// <inheritdoc />
-        IEnumerable<Lazy<T, TMetadataView>> ICompositionHost.GetExports<T, TMetadataView>(string contractName)
+        public IEnumerable<Lazy<T, TMetadataView>> GetExports<T, TMetadataView>(string contractName)
         {
             return _container.GetExports<T, TMetadataView>(contractName);
         }
 
         /// <inheritdoc />
-        IEnumerable<Export> ICompositionHost.GetExports(ImportDefinition definition)
+        public IEnumerable<Export> GetExports(ImportDefinition definition)
         {
             return _container.GetExports(definition);
         }
 
         /// <inheritdoc />
-        IEnumerable<T> ICompositionHost.GetSharedExportedValues<T>()
+        public IEnumerable<T> GetSharedExportedValues<T>()
         {
             var result = _container.GetExportedValues<T>();
             ValidateAllShared((IEnumerable<object>)result);
@@ -165,7 +147,7 @@ namespace NationalInstruments.Composition
         }
 
         /// <inheritdoc />
-        IEnumerable<T> ICompositionHost.GetNonSharedExportedValues<T>()
+        public IEnumerable<T> GetNonSharedExportedValues<T>()
         {
             var result = _container.GetExportedValues<T>();
             ValidateAtLeastOneNonShared((IEnumerable<object>)result, typeof(T));
@@ -173,25 +155,25 @@ namespace NationalInstruments.Composition
         }
 
         /// <inheritdoc />
-        void ICompositionHost.Compose(CompositionBatch batch)
+        public void Compose(CompositionBatch batch)
         {
             _container.Compose(batch);
         }
 
         /// <inheritdoc />
-        ComposablePart ICompositionHost.SatisfyImportsOnce(object attributedPart)
+        public ComposablePart SatisfyImportsOnce(object attributedPart)
         {
             return _container.SatisfyImportsOnce(attributedPart);
         }
 
         /// <inheritdoc />
-        void ICompositionHost.ComposeParts(params object[] attributedParts)
+        public void ComposeParts(params object[] attributedParts)
         {
             _container.ComposeParts(attributedParts);
         }
 
         /// <inheritdoc />
-        void ICompositionHost.AddToComposition(ComposablePartCatalog composablePartCatalog)
+        public void AddToComposition(ComposablePartCatalog composablePartCatalog)
         {
             lock (_catalog)
             {

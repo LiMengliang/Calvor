@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDK", "SDK", "{5230B7BE-8E8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformFramework", "SDK\PlatformFramework\PlatformFramework.csproj", "{12921075-C3F1-4BAB-B036-3520BC953178}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompositionTest", "Core\Composition.Test\CompositionTest\CompositionTest.csproj", "{2459749C-8D96-4AA7-903B-149E9EC71110}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,12 +27,17 @@ Global
 		{12921075-C3F1-4BAB-B036-3520BC953178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12921075-C3F1-4BAB-B036-3520BC953178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12921075-C3F1-4BAB-B036-3520BC953178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2459749C-8D96-4AA7-903B-149E9EC71110}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2459749C-8D96-4AA7-903B-149E9EC71110}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2459749C-8D96-4AA7-903B-149E9EC71110}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2459749C-8D96-4AA7-903B-149E9EC71110}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{64F48DF2-8E16-4F0B-B114-1983958F23E1} = {F19DABCE-C7E1-4D8A-9CFA-6B903C1D5A29}
+		{2459749C-8D96-4AA7-903B-149E9EC71110} = {F19DABCE-C7E1-4D8A-9CFA-6B903C1D5A29}
 		{12921075-C3F1-4BAB-B036-3520BC953178} = {5230B7BE-8E80-4F39-A902-909D60ACF681}
 	EndGlobalSection
 EndGlobal
