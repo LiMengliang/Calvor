@@ -1,0 +1,24 @@
+﻿<Window x:Class="Calvor.SDK.PlatformFramework.Shell.StudioWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+        Loaded="StudioWindow_OnLoaded">
+    <Grid x:Name="_rootContainer">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth ="200" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid Column="0" x:Name="_sideView">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="64" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid Row="0" x:Name="_sideViewHead"></Grid>
+            <Grid Row="1" x:Name="_sideViewBody"></Grid>
+        </Grid>
+        <Grid Column="1" x:Name="_mainViewSite"></Grid>
+    </Grid>
+</Window>
