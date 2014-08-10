@@ -33,18 +33,12 @@ namespace Calvor.SDK.PlatformFramework.Shell
             {
                 _mainViewSite.Items.Add(new TabItem
                 {
-                    Content = sidePanelProvider.Value.CreateSidePanel(),
+                    Content = sidePanelProvider.Value.GetMainWindow(),
                     Header = sidePanelProvider.Metadata.Name
                 });
             }
             _mainViewSite.SelectedIndex = 0;
-            _sideView.Children.Add(SidePanelsProviders.First().Value.GetMainWindow());
-            // var sidePanelCreators = Host.GetSharedExportedValues<ISidePanelType>();
-            // foreach (var sidePanelCreator in sidePanelCreators)
-            // {
-            //     _sideViewBody.Children.Add(sidePanelCreator.CreateSidePanel());
-            // }
-            // _sideViewBody.Children.Add(_sidePanels.Value.CreateSidePanel());
+            _sideView.Children.Add(SidePanelsProviders.First().Value.CreateSidePanel());
         }
     }
 }
