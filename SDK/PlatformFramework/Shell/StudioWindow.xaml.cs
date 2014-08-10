@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,18 +23,27 @@ namespace Calvor.SDK.PlatformFramework.Shell
 
         public ICompositionHost Host { get; private set; }
 
+        [ImportMany(typeof(IMainWindow))]
+        public IEnumerable<Lazy<IMainWindow, IMainViewSiteMetadata>> SidePanelsProviders { get; private set; }
+
         private void StudioWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            // foreach (var sidePanel in _sidePanels)
-            // {
-            //     var button = new Button();
-            //     _sideViewHead.Children.Add(button);
-            // }
-            var sidePanelCreators = Host.GetSharedExportedValues<ISidePanelType>();
-            foreach (var sidePanelCreator in sidePanelCreators)
+            Host.SatisfyImportsOnce(this);
+            foreach (var sidePanelProvider in SidePanelsProviders)
             {
-                _sideViewBody.Children.Add(sidePanelCreator.CreateSidePanel());
+                _mainViewSite.Items.Add(new TabItem
+                {
+                    Content = sidePanelProvider.Value.CreateSidePanel(),
+                    Header = sidePanelProvider.Metadata.Name
+                });
             }
+            _mainViewSite.SelectedIndex = 0;
+            _sideView.Children.Add(SidePanelsProviders.First().Value.GetMainWindow());
+            // var sidePanelCreators = Host.GetSharedExportedValues<ISidePanelType>();
+            // foreach (var sidePanelCreator in sidePanelCreators)
+            // {
+            //     _sideViewBody.Children.Add(sidePanelCreator.CreateSidePanel());
+            // }
             // _sideViewBody.Children.Add(_sidePanels.Value.CreateSidePanel());
         }
     }

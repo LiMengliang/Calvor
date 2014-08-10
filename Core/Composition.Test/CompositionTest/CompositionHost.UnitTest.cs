@@ -18,10 +18,20 @@ namespace Calvor.Core.CompositionTest
 
         // If you want to use MetaData, you should make Lazy import.
         [Import(typeof(IMockInterface))]
+        // IMetadata: MEF will implicitly generate an implementation of IMetadata based on name of the metadata.
+        // So the IMetadata's member should be the same with the name of meta data of exported value.
         public Lazy<IMockInterface, IMetadata> MockInterfaceImplementation { get; set; }
+        // You can also use your defined Metadata class
+        // public Lazy<IMockInterface, MyMetadata> MockInterfaceImplementation { get; set; }
 
         [ImportMany(typeof(IMockMultiImplementInterface))]
         public IEnumerable<Lazy<IMockMultiImplementInterface>> mockMultiImpelentations { get; set; }
+
+        [Import(typeof(INoneSharedPart))]
+        public INoneSharedPart FirstNoneSharedPart { get; set; }
+
+        [Import(typeof(INoneSharedPart))]
+        public INoneSharedPart SecondNoneSharedPart { get; set; }
         
         [TestInitialize]
         public void InitializeHost()
@@ -50,6 +60,19 @@ namespace Calvor.Core.CompositionTest
                 compositionHost.SatisfyImportsOnce(this);
             }
             Assert.IsNotNull(MockInterfaceImplementation);
+        }
+
+        [TestMethod]
+        public void CompositionHost_ImportNoneShared_Successfully()
+        {
+            var compositionHost = _host as CompositionHost;
+            if (compositionHost != null)
+            {
+                compositionHost.SatisfyImportsOnce(this);
+            }
+            Assert.IsNotNull(FirstNoneSharedPart);
+            Assert.IsNotNull(SecondNoneSharedPart);
+            Assert.IsFalse(FirstNoneSharedPart.Equals(SecondNoneSharedPart));
         }
 
         [TestMethod]
@@ -108,7 +131,7 @@ namespace Calvor.Core.CompositionTest
     public class MyMetadata : IMetadata
     {
         private IDictionary<string, object> _metaDatas;
-
+    
         public MyMetadata(IDictionary<string, object> metaDatas)
         {
             _metaDatas = metaDatas; 
@@ -117,7 +140,7 @@ namespace Calvor.Core.CompositionTest
         {
             get { return _metaDatas.ContainsKey("NumericMetaData") ? (int)_metaDatas["NumericMetaData"] : 0; }
         }
-
+    
         public string StringMetaData
         {
             get { return _metaDatas.ContainsKey("StringMetaData") ? (string)_metaDatas["StringMetaData"] : string.Empty; }
@@ -163,5 +186,13 @@ namespace Calvor.Core.CompositionTest
     {
     }
 
+    public interface INoneSharedPart
+    {
+    }
+
+    [Export(typeof(INoneSharedPart))]
+    [PartCreationPolicy(CreationPolicy.NonShared)]
+    public class MockNoneSharedPart : INoneSharedPart
+    { }
     #endregion
 }

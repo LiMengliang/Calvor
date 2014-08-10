@@ -36,8 +36,8 @@ namespace Calvor.SDK.PlatformFramework.Shell
             var shellApplication = new ShellApplication();
             shellApplication.Host = new CompositionHost();
             ((CompositionHost)(shellApplication.Host)).InitializeWithCatalog(new DirectoryCatalog(new DirectoryInfo(typeof(ShellApplication).Assembly.Location).Parent.FullName));
-            _mainWindow = new StudioWindow(shellApplication.Host);
             shellApplication.Host.SatisfyImportsOnce(shellApplication);
+            _mainWindow = new StudioWindow(shellApplication.Host);
             _mainWindow.Show();
             shellApplication.Run(_mainWindow);
             return shellApplication;

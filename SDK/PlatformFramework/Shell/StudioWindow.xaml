@@ -11,14 +11,9 @@
             <ColumnDefinition MinWidth ="200" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Grid Column="0" x:Name="_sideView">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="64" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid Row="0" x:Name="_sideViewHead"></Grid>
-            <Grid Row="1" x:Name="_sideViewBody"></Grid>
+        <Grid Column="0" x:Name="_sideView"></Grid>
+        <Grid Column="1">
+            <TabControl x:Name="_mainViewSite"></TabControl>
         </Grid>
-        <Grid Column="1" x:Name="_mainViewSite"></Grid>
     </Grid>
 </Window>

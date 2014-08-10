@@ -5,6 +5,6 @@ namespace Calvor.SDK.PlatformFramework.Shell
 {
     public interface IMainViewSite
     {
-        int CreateAndShowSidePanel(Lazy<ISidePanelType> sidePanel);
+        int CreateAndShowViewSite(Lazy<IMainWindow> vieSite);
     }
 }

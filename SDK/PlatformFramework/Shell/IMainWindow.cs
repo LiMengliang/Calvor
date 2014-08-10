@@ -2,8 +2,9 @@
 
 namespace Calvor.SDK.PlatformFramework.Shell
 {
-    public interface ISidePanelType
+    public interface IMainWindow
     {
         UIElement CreateSidePanel();
+        UIElement GetMainWindow();
     }
 }

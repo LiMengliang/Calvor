@@ -52,7 +52,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SimpleWindow.cs" />
+    <Compile Include="MainWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -67,9 +67,9 @@
       <Project>{12921075-c3f1-4bab-b036-3520bc953178}</Project>
       <Name>PlatformFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="SimpleWindow\SimpleWindow.csproj">
+    <ProjectReference Include="FileBrowser\FileBrowser.csproj">
       <Project>{ec4e9c8e-9de0-4000-87f9-3f784255a234}</Project>
-      <Name>SimpleWindow</Name>
+      <Name>FileBrowser</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

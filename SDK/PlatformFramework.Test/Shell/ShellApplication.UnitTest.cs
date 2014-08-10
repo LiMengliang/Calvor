@@ -4,8 +4,6 @@ using Calvor.SDK.PlatformFramework.Shell;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Calvor.SDK.PlatformFramework;
 using System.ComponentModel.Composition;
-using System.Windows;
-using System.ComponentModel.Composition.Hosting;
 
 namespace Calvor.SDK.PlatformFrameworkTest
 {

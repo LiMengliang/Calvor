@@ -15,11 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompositionTest", "Core\Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformFramework.Test", "SDK\PlatformFramework.Test\PlatformFramework.Test.csproj", "{2113ABC3-6C18-4205-AC86-CC18C3F8CA78}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleWindowApplication", "SimpleWindowApplication", "{C87DD40E-C8CD-4A71-A3E9-49D065274586}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "iPhotoGallery", "iPhotoGallery", "{C87DD40E-C8CD-4A71-A3E9-49D065274586}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWindowApplication", "SimpleWindowApplication\SimpleWindowApplication.csproj", "{90D1FAE3-2A3C-4EE0-9828-CD5282C08D09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPhotoGallery", "iPhotoGallery\iPhotoGallery.csproj", "{90D1FAE3-2A3C-4EE0-9828-CD5282C08D09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWindow", "SimpleWindowApplication\SimpleWindow\SimpleWindow.csproj", "{EC4E9C8E-9DE0-4000-87F9-3F784255A234}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileBrowser", "iPhotoGallery\FileBrowser\FileBrowser.csproj", "{EC4E9C8E-9DE0-4000-87F9-3F784255A234}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileBrowser.Test", "iPhotoGallery\FileBrowser.Test\FileBrowser.Test.csproj", "{74B92463-AAA3-456B-8454-6C4D796FF89A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{EC4E9C8E-9DE0-4000-87F9-3F784255A234}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC4E9C8E-9DE0-4000-87F9-3F784255A234}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC4E9C8E-9DE0-4000-87F9-3F784255A234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74B92463-AAA3-456B-8454-6C4D796FF89A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74B92463-AAA3-456B-8454-6C4D796FF89A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74B92463-AAA3-456B-8454-6C4D796FF89A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74B92463-AAA3-456B-8454-6C4D796FF89A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,5 +68,6 @@ Global
 		{2113ABC3-6C18-4205-AC86-CC18C3F8CA78} = {5230B7BE-8E80-4F39-A902-909D60ACF681}
 		{90D1FAE3-2A3C-4EE0-9828-CD5282C08D09} = {C87DD40E-C8CD-4A71-A3E9-49D065274586}
 		{EC4E9C8E-9DE0-4000-87F9-3F784255A234} = {C87DD40E-C8CD-4A71-A3E9-49D065274586}
+		{74B92463-AAA3-456B-8454-6C4D796FF89A} = {C87DD40E-C8CD-4A71-A3E9-49D065274586}
 	EndGlobalSection
 EndGlobal
