@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindow.cs" />
+    <Compile Include="PhotoGalleryApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +71,10 @@
     <ProjectReference Include="FileBrowser\FileBrowser.csproj">
       <Project>{ec4e9c8e-9de0-4000-87f9-3f784255a234}</Project>
       <Name>FileBrowser</Name>
+    </ProjectReference>
+    <ProjectReference Include="PhotoGallery\PhotoGallery.csproj">
+      <Project>{94a5ed09-0314-4e95-8790-28d3de31028a}</Project>
+      <Name>PhotoGallery</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

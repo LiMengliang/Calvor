@@ -8,12 +8,10 @@
         Loaded="StudioWindow_OnLoaded">
     <Grid x:Name="_rootContainer">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth ="200" />
+            <ColumnDefinition Width ="240" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Grid Column="0" x:Name="_sideView"></Grid>
-        <Grid Column="1">
-            <TabControl x:Name="_mainViewSite"></TabControl>
-        </Grid>
+        <Grid Column="0" x:Name="_sideViewSite" ></Grid>
+        <Grid Column="1" x:Name="_mainViewSite" />
     </Grid>
 </Window>

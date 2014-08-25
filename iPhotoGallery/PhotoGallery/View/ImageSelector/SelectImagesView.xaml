@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="Calvor.PhotoGallery.FileBrowser.View.SelectImagesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:View="clr-namespace:PhotoGallery.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <View:PathToImageConverter x:Key="PathToImageConverter"></View:PathToImageConverter>
+    </UserControl.Resources>
+    <DockPanel>
+        <ListBox x:Name="_selectedImages" Width="180" ItemsSource="{Binding Path=SelectedImagesUri}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <EventSetter Event="MouseRightButtonUp" Handler="DeselectImage"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Converter={StaticResource PathToImageConverter}}" Width="32" Height="32"></Image>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button x:Name="_goBack" Content="Back" Click="_goBack_OnClick" />
+        <ListBox x:Name="_fileSystemView" ItemsSource="{Binding Path=FileSystemElements}" 
+                 MouseDoubleClick="_fileSystemView_OnMouseDoubleClick"
+                 ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                ScrollViewer.CanContentScroll="True">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <EventSetter Event="MouseRightButtonUp" Handler="SelectImage"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Path=Icon}" Width="32" Height="32"></Image>
+                        <TextBlock Text="{Binding Path= Name}"></TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

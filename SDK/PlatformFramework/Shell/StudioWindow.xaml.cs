@@ -23,22 +23,14 @@ namespace Calvor.SDK.PlatformFramework.Shell
 
         public ICompositionHost Host { get; private set; }
 
-        [ImportMany(typeof(IMainWindow))]
-        public IEnumerable<Lazy<IMainWindow, IMainViewSiteMetadata>> SidePanelsProviders { get; private set; }
+        [ImportMany(typeof(IApplicationViewFactory))]
+        public IEnumerable<Lazy<IApplicationViewFactory>> ApplicationViewFactory { get; private set; }
 
         private void StudioWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             Host.SatisfyImportsOnce(this);
-            foreach (var sidePanelProvider in SidePanelsProviders)
-            {
-                _mainViewSite.Items.Add(new TabItem
-                {
-                    Content = sidePanelProvider.Value.GetMainWindow(),
-                    Header = sidePanelProvider.Metadata.Name
-                });
-            }
-            _mainViewSite.SelectedIndex = 0;
-            _sideView.Children.Add(SidePanelsProviders.First().Value.CreateSidePanel());
+            _sideViewSite.Children.Add(ApplicationViewFactory.First().Value.CreateSideView());
+            _mainViewSite.Children.Add(ApplicationViewFactory.First().Value.CreateMainView());
         }
     }
 }
