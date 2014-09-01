@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="PhotoGallery.View.AlbumnPhotosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:view="clr-namespace:Calvor.PhotoGallery.FileBrowser.View"
+             xmlns:View="clr-namespace:PhotoGallery.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <View:ImageViewVisibilityConverter x:Key="ImageViewVisibilityConverter"/>
+        <View:PathToImageConverter x:Key="PathToImageConverter"></View:PathToImageConverter>
+    </UserControl.Resources>
+    <StackPanel x:Name="_container" Orientation="Vertical">
+        <StackPanel Orientation="Horizontal" Visibility="{Binding Path=FileSystemVisible}" DataContext="{Binding Path=ActiveAlbumn}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Name" />
+                <TextBox x:Name="AlbumnName" Text="{Binding Path=Name}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Time" />
+                <TextBox x:Name="Time" Text="{Binding Path=Time}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Location" />
+                <TextBox x:Name="Location" Text="{Binding Path=Location}"/>
+            </StackPanel>
+        </StackPanel>
+        <view:SelectImagesView x:Name="FileSystemView" Visibility="{Binding Path=FileSystemVisible}" />
+        <DockPanel Visibility="{Binding Path=FileSystemVisible, Converter={StaticResource ImageViewVisibilityConverter}}">
+            <Button Content="ModifyAlbumn" Click="Modify_OnClick"/>
+            <ListBox x:Name="AlbumnImagesView" 
+                 ItemsSource="{Binding Path=ImagePaths}" DataContext="{Binding Path=ActiveAlbumn}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="120" Source="{Binding Converter={StaticResource PathToImageConverter}}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+        <Button x:Name="Refresh" Content="Refresh" Click="Refresh_OnClick" />
+    </StackPanel>
+</UserControl>

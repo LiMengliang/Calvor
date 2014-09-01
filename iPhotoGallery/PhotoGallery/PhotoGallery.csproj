@@ -64,10 +64,11 @@
     <Compile Include="View\ImageSelector\SelectImagesView.xaml.cs">
       <DependentUpon>SelectImagesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ImageViewVisibilityConverter.cs" />
     <Compile Include="View\PathToImageConverter.cs" />
     <Compile Include="View\PhotoGalleryViewFactory.cs" />
-    <Compile Include="View\PhotoView.xaml.cs">
-      <DependentUpon>PhotoView.xaml</DependentUpon>
+    <Compile Include="View\AlbumnPhotosView.xaml.cs">
+      <DependentUpon>AlbumnPhotosView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -89,7 +90,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\PhotoView.xaml">
+    <Page Include="View\AlbumnPhotosView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

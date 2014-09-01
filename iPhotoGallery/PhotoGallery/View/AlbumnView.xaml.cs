@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using PhotoGallery.Model.Alubmn;
@@ -17,16 +19,16 @@ namespace PhotoGallery.View
         public AlbumnView()
         {
             InitializeComponent();
+            AlbumnViewList.DataContext = _photoGalleryViewModel;
         }
 
         private void CreateAlbumn_Click(object sender, RoutedEventArgs e)
         {
             _photoGalleryViewModel.FileSystemVisible = Visibility.Visible;
-        }
-
-        private void SaveAlbumn_OnClick(object sender, RoutedEventArgs e)
-        {
-            _photoGalleryViewModel.AddAlbumn(AlbumnName.Text, Time.Text, Location.Text, _photoGalleryViewModel.ImagesSelectorViewModel.SelectedImagesUri);
+            _photoGalleryViewModel.ImagesSelectorViewModel.SelectedImagesUri = new Collection<Uri>();
+            _photoGalleryViewModel.ActiveAlbumn = new Albumn();
+            // _photoGalleryViewModel.ImagesSelectorViewModel.ActiveAlbumn = _photoGalleryViewModel.ActiveAlbumn;
+            _photoGalleryViewModel.Albumns.Add(_photoGalleryViewModel.ActiveAlbumn);
         }
     }
 }

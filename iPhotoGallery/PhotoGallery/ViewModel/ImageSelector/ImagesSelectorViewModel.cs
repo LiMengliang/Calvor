@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
+using PhotoGallery.Model.Alubmn;
 
 namespace Calvor.PhotoGallery.FileBrowser.Model
 {
@@ -27,9 +27,20 @@ namespace Calvor.PhotoGallery.FileBrowser.Model
         /// <summary>
         /// File system manager.
         /// </summary>
-        private readonly ImageSelectorManager _fileSystemManager;
+        private readonly ImageSelectorManager _imageSelectorManager;
+
+        public Albumn ActiveAlbumn { get; set; }
 
         #endregion
+
+        public ImagesSelectorViewModel()
+        {
+            _imageSelectorManager = new ImageSelectorManager();
+            // ActiveAlbumn = activeAlbumn;
+            // SelectedImagesUri = activeAlbumn.ImagePaths;
+            FileSystemElements = from drive in DriveInfo.GetDrives() select new FileSystemElementViewModel(new Directory(drive.RootDirectory));
+            SelectedImagesUri = new Collection<Uri>();
+        }
 
         #region Properties
 
@@ -40,12 +51,12 @@ namespace Calvor.PhotoGallery.FileBrowser.Model
         {
             get
             {
-                return from element in _fileSystemManager.CurrentElement.SubFileSystemElements
+                return from element in _imageSelectorManager.CurrentElement.SubFileSystemElements
                            select new FileSystemElementViewModel(element);
             }
             set
             {
-                _fileSystemManager.CurrentElement = value.First().FileElement.Parent;
+                _imageSelectorManager.CurrentElement = value.First().FileElement.Parent;
                 OnPropertyChanged("FileSystemElements");
             }
         }
@@ -60,8 +71,8 @@ namespace Calvor.PhotoGallery.FileBrowser.Model
         /// <param name="fileSystemElement"></param>
         public void NevigateInto(FileSystemElementViewModel fileSystemElement)
         {
-            _fileSystemManager.CurrentElement = fileSystemElement.FileElement;
-            FileSystemElements = from fileElement in _fileSystemManager.CurrentElement.SubFileSystemElements
+            _imageSelectorManager.CurrentElement = fileSystemElement.FileElement;
+            FileSystemElements = from fileElement in _imageSelectorManager.CurrentElement.SubFileSystemElements
                                 select new FileSystemElementViewModel(fileElement);
         }
 
@@ -70,16 +81,13 @@ namespace Calvor.PhotoGallery.FileBrowser.Model
         /// </summary>
         public void NevigateOut()
         {
-            if (_fileSystemManager.CurrentElement == null)
+            if (_imageSelectorManager.CurrentElement == null)
             {
                 return;
             }
-            _fileSystemManager.CurrentElement = _fileSystemManager.CurrentElement.Parent;
-            FileSystemElements = from fileElement in _fileSystemManager.CurrentElement.SubFileSystemElements
+            _imageSelectorManager.CurrentElement = _imageSelectorManager.CurrentElement.Parent;
+            FileSystemElements = from fileElement in _imageSelectorManager.CurrentElement.SubFileSystemElements
                                 select new FileSystemElementViewModel(fileElement);
-            // _fileSystemManager.NevigateOut(_fileSystemManager.CurrentElement);
-            // FileSystemElements = from fileElement in _fileSystemManager.FileSystemElements
-                                    // select new FileSystemElementViewModel(fileElement);
         }
 
         private ICollection<Uri> _selectedImageUri;
@@ -88,32 +96,30 @@ namespace Calvor.PhotoGallery.FileBrowser.Model
             get { return _selectedImageUri; }
             set
             {
+                _imageSelectorManager.SelectedImagesPath = value;
                 _selectedImageUri = value;
+                if (ActiveAlbumn != null)
+                {
+                    ActiveAlbumn.ImagePaths = value;
+                }
                 OnPropertyChanged("SelectedImagesUri");
             }
         }
 
         public void AddSelectedImagePath(Uri imageUri)
         {
-            _fileSystemManager.AddSelectedImage(imageUri);
-            SelectedImagesUri = _fileSystemManager.SelectedImagesPath;
+            _imageSelectorManager.AddSelectedImage(imageUri);
+            // ActiveAlbumn.ImagePaths = new Collection<Uri>(ActiveAlbumn.ImagePaths.ToList());
+            SelectedImagesUri = _imageSelectorManager.SelectedImagesPath;
         }
 
         public void RemoveSelectedIamgePath(Uri imageUri)
         {
-            _fileSystemManager.DeselectedImage(imageUri);
-            SelectedImagesUri = _fileSystemManager.SelectedImagesPath;
-        }
-
-        #endregion
-
-        #region Constructors
-
-        public ImagesSelectorViewModel()
-        {
-            _fileSystemManager = new ImageSelectorManager();
-            FileSystemElements = from drive in DriveInfo.GetDrives() select new FileSystemElementViewModel(new Directory(drive.RootDirectory));
-            SelectedImagesUri = new Collection<Uri>();
+            _imageSelectorManager.DeselectedImage(imageUri);
+            ActiveAlbumn.ImagePaths = (from imagePath in ActiveAlbumn.ImagePaths
+                where !imagePath.Equals(imageUri)
+                select imagePath).ToList();
+            SelectedImagesUri = _imageSelectorManager.SelectedImagesPath;
         }
 
         #endregion

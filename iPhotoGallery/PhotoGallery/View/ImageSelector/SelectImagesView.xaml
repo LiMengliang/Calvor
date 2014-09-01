@@ -10,39 +10,49 @@
         <View:PathToImageConverter x:Key="PathToImageConverter"></View:PathToImageConverter>
     </UserControl.Resources>
     <DockPanel>
-        <ListBox x:Name="_selectedImages" Width="180" ItemsSource="{Binding Path=SelectedImagesUri}">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="{x:Type ListBoxItem}">
-                    <EventSetter Event="MouseRightButtonUp" Handler="DeselectImage"/>
-                </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Converter={StaticResource PathToImageConverter}}" Width="32" Height="32"></Image>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <Button x:Name="_goBack" Content="Back" Click="_goBack_OnClick" />
-        <ListBox x:Name="_fileSystemView" ItemsSource="{Binding Path=FileSystemElements}" 
+        <StackPanel>
+            <ListBox x:Name="_selectedImages" Width="180" ItemsSource="{Binding Path=SelectedImagesUri}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <EventSetter Event="MouseRightButtonUp" Handler="DeselectImage"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{Binding Converter={StaticResource PathToImageConverter}}" Width="32" Height="32"></Image>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Button Content="Save" Click="Save_OnClicked"/>
+        </StackPanel>
+        <StackPanel>
+            <Button x:Name="_goBack" Content="Back" Click="_goBack_OnClick" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox x:Name="SelectAllCheckBox" Checked="SelectAllCheckBox_OnChecked">SelectAll</CheckBox>
+                <Button x:Name="ComfirmSelectedIamges" Click="ComfirmSelectedIamges_OnClick">Select</Button>
+            </StackPanel>
+            <ListBox x:Name="_fileSystemView" ItemsSource="{Binding Path=FileSystemElements}" 
+                     SelectionMode="Extended"
                  MouseDoubleClick="_fileSystemView_OnMouseDoubleClick"
                  ScrollViewer.VerticalScrollBarVisibility="Visible" 
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 ScrollViewer.CanContentScroll="True">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="{x:Type ListBoxItem}">
-                    <EventSetter Event="MouseRightButtonUp" Handler="SelectImage"/>
-                </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Path=Icon}" Width="32" Height="32"></Image>
-                        <TextBlock Text="{Binding Path= Name}"></TextBlock>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <EventSetter Event="MouseRightButtonUp" Handler="SelectIamge"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{Binding Path=Icon}" Width="32" Height="32"></Image>
+                            <TextBlock Text="{Binding Path= Name}"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
     </DockPanel>
 </UserControl>

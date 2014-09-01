@@ -2,7 +2,6 @@
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
-using Path = System.Windows.Shapes.Path;
 
 namespace PhotoGallery.View
 {
@@ -11,10 +10,13 @@ namespace PhotoGallery.View
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             var uri = (Uri) value;
-            var path = new DirectoryInfo(uri.AbsolutePath).Extension;
-            if (path.Contains("jpg"))
+            if (uri != null)
             {
-                return new BitmapImage(uri);
+                var path = new DirectoryInfo(uri.AbsolutePath).Extension;
+                if (path.Contains("jpg"))
+                {
+                    return new BitmapImage(uri);
+                }
             }
             return null;
         }

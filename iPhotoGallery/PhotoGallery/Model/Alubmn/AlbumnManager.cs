@@ -2,23 +2,33 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents.DocumentStructures;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace PhotoGallery.Model.Alubmn
 {
     public class Albumn
     {
+
+        private Uri _covePath;
+        public Uri CoverImagePath 
+        {
+            get { return ImagePaths.Count > 0 ? ImagePaths.First() : null; }
+        }
+        public Guid Guid { get; set; }
         public string Name { get; set; }
         public string Location { get; set; }
         public string Time { get; set; }
         public ICollection<Uri> ImagePaths { get; set; }
 
-        public Albumn(string name, string location, string time, ICollection<Uri> imagePaths)
+        public Albumn()
         {
+            Guid = Guid.NewGuid();
+            ImagePaths = new Collection<Uri>();
+        }
+
+        public Albumn(string name, string location, string time, ICollection<Uri> imagePaths, Guid guid)
+        {
+            Guid = guid;
             Name = name;
             Location = location;
             Time = time;
@@ -30,10 +40,10 @@ namespace PhotoGallery.Model.Alubmn
     {
         public ICollection<Albumn> Albumns { get; set; }
 
-        public AlbumnManager()
-        {
-            Albumns = LoadAlbumns();
-        }
+        // public AlbumnManager()
+        // {
+        //     Albumns = LoadAlbumns();
+        // }
  
         public ICollection<Albumn> LoadAlbumns()
         {
@@ -52,7 +62,7 @@ namespace PhotoGallery.Model.Alubmn
                         imagePaths.Add(new Uri(image.InnerText));
                     }
                     var albumn = new Albumn(element.GetAttribute("Name"), element.GetAttribute("Time"),
-                        element.GetAttribute("Location"), imagePaths);
+                        element.GetAttribute("Location"), imagePaths, new Guid(element.GetAttribute("ID")));
                     albumns.Add(albumn);
                 }
             }
@@ -60,35 +70,43 @@ namespace PhotoGallery.Model.Alubmn
             return albumns;
         }
 
-        public void AddAlbumn(string name, string time, string location, ICollection<Uri> imagePaths)
+        public void SaveAlbumns()
         {
-            Albumns.Add(new Albumn(name, location, time, imagePaths));
             var xmlDocumentation = new XmlDocument();
             try
             {
                 xmlDocumentation.Load(@"E:\albumn.xml");
-                XmlElement albumn = xmlDocumentation.CreateElement("Albumn");
-                XmlAttribute albumnName = xmlDocumentation.CreateAttribute("Name");
-                albumnName.InnerText = name;
-                XmlAttribute albumnTime = xmlDocumentation.CreateAttribute("Time");
-                albumnTime.InnerText = time;
-                XmlAttribute albumnLocation = xmlDocumentation.CreateAttribute("Location");
-                albumnLocation.InnerText = location;
-                albumn.SetAttributeNode(albumnName);
-                albumn.SetAttributeNode(albumnTime);
-                albumn.SetAttributeNode(albumnLocation);
-                foreach (var imagePath in imagePaths)
+                XmlNode root = xmlDocumentation.SelectSingleNode("Albumns");
+                root.RemoveAll();
+                foreach (var albumn in Albumns)
                 {
-                    XmlElement image = xmlDocumentation.CreateElement("Image");
-                    image.InnerText = imagePath.AbsolutePath;
-                    albumn.AppendChild(image);
+                    XmlElement albumnItem = xmlDocumentation.CreateElement("Albumn");
+                    XmlAttribute albumnName = xmlDocumentation.CreateAttribute("Name");
+                    albumnName.InnerText = albumn.Name;
+                    XmlAttribute albumnTime = xmlDocumentation.CreateAttribute("Time");
+                    albumnTime.InnerText = albumn.Time;
+                    XmlAttribute albumnLocation = xmlDocumentation.CreateAttribute("Location");
+                    albumnLocation.InnerText = albumn.Location;
+                    XmlAttribute albumnID = xmlDocumentation.CreateAttribute("ID");
+                    albumnID.InnerText = albumn.Guid.ToString();
+                    albumnItem.SetAttributeNode(albumnID);
+                    albumnItem.SetAttributeNode(albumnName);
+                    albumnItem.SetAttributeNode(albumnTime);
+                    albumnItem.SetAttributeNode(albumnLocation);
+                    foreach (var imagePath in albumn.ImagePaths)
+                    {
+                        XmlElement image = xmlDocumentation.CreateElement("Image");
+                        image.InnerText = imagePath.AbsolutePath;
+                        albumnItem.AppendChild(image);
+                    }
+                    xmlDocumentation.DocumentElement.AppendChild(albumnItem);
                 }
-                xmlDocumentation.DocumentElement.AppendChild(albumn);
                 xmlDocumentation.Save(@"E:\albumn.xml");
             }
             catch (Exception)
             {
                 
+                throw;
             }
         }
     }

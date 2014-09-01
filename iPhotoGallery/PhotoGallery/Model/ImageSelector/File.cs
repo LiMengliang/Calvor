@@ -50,7 +50,17 @@ namespace Calvor.PhotoGallery.FileBrowser.Model
         /// <inheritdoc />
         public ImageSource Icon
         {
-            get { return new BitmapImage(new Uri(FullName)); }
+            get
+            {
+                if (FullName.Contains(".jpg"))
+                {
+                    return new BitmapImage(new Uri(FullName));
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
         /// <inheritdoc />

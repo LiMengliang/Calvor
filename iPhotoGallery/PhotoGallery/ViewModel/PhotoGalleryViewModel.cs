@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
-using System.Windows.Documents.DocumentStructures;
 using Calvor.PhotoGallery.FileBrowser.Model;
 using PhotoGallery.Model.Alubmn;
 
@@ -12,16 +13,39 @@ namespace PhotoGallery.ViewModel
     {
         public static PhotoGalleryViewModel StaticInstance = new PhotoGalleryViewModel();
 
-        public ImagesSelectorViewModel ImagesSelectorViewModel = new ImagesSelectorViewModel();
+        public ImagesSelectorViewModel ImagesSelectorViewModel;
         private AlbumnManager _albumnManager = new AlbumnManager();
 
-        public ICollection<Albumn> Albumns { get; set; } 
+        private ICollection<Albumn> _albumns;
+        public ICollection<Albumn> Albumns
+        {
+            get { return _albumns; }
+            set
+            {
+                _albumnManager.Albumns = value;
+                _albumns = value;
+                OnPropertyChanged("Albumns");
+            }
+        } 
 
         public PhotoGalleryViewModel()
         {
-            _fileSystemVisible = Visibility.Collapsed;
             ImagesSelectorViewModel = new ImagesSelectorViewModel();
+            _fileSystemVisible = Visibility.Collapsed;
             Albumns = LocalAlbumn();
+            ActiveAlbumn = Albumns.Count > 0 ? Albumns.First() : null;
+        }
+
+        private Albumn _activeAlbumn;
+        public Albumn ActiveAlbumn
+        {
+            get { return _activeAlbumn; }
+            set
+            {
+                _activeAlbumn = value;
+                ImagesSelectorViewModel.ActiveAlbumn = value;
+                OnPropertyChanged("ActiveAlbumn");
+            }
         }
 
         private Visibility _fileSystemVisible;
@@ -35,14 +59,14 @@ namespace PhotoGallery.ViewModel
             }
         }
 
-        public void AddAlbumn(string name, string time, string location, ICollection<Uri> imagePaths)
-        {
-            _albumnManager.AddAlbumn(name, time, location, imagePaths);
-        }
-
         public ICollection<Albumn> LocalAlbumn()
         {
             return _albumnManager.LoadAlbumns();
+        }
+
+        public void SaveAlbumns()
+        {
+            _albumnManager.SaveAlbumns();
         }
 
         #region INotifyPropertyChanged Members

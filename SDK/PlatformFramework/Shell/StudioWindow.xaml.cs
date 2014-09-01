@@ -22,7 +22,7 @@ namespace Calvor.SDK.PlatformFramework.Shell
         }
 
         public ICompositionHost Host { get; private set; }
-
+        
         [ImportMany(typeof(IApplicationViewFactory))]
         public IEnumerable<Lazy<IApplicationViewFactory>> ApplicationViewFactory { get; private set; }
 

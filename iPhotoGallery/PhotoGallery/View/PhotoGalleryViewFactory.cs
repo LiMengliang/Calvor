@@ -14,7 +14,7 @@ namespace PhotoGallery.View
 
         public UIElement CreateMainView()
         {
-            return new PhotoView();
+            return new AlbumnPhotosView();
         }
     }
 }
